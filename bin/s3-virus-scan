@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+const yarger = require('yargs');
+const ora = require('ora');
+const collector = require('../lib/bucket-collect.js');
+
+// Command line
+yarger
+  // Collect command
+  .command(
+    'collect [bucket]',
+    'Collect all files from bucket.',
+    yargs => {
+      yargs.positional('bucket', {
+        describe: 'S3 bucket',
+        require: true
+      });
+    },
+    argv => {
+      // Run collector
+      const spinner = ora('Collecting...').start();
+      collector({
+        bucket: argv.bucket,
+        output: argv.output,
+        spinner: spinner
+      })
+        .then(keyCount => {
+          spinner.succeed(`Done.  ${keyCount} files found.`);
+        })
+        .catch(error => {
+          spinner.fail('Fail:');
+          console.error(error);
+        });
+    }
+  )
+  .option('output', {
+    alias: 'o',
+    describe: 'Directory to output files.'
+  }).argv;
