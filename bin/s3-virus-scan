@@ -2,6 +2,7 @@
 const yarger = require('yargs');
 const ora = require('ora');
 const collector = require('../lib/bucket-collect.js');
+const scanner = require('../lib/bucket-scan.js');
 
 // Command line
 yarger
@@ -25,6 +26,46 @@ yarger
       })
         .then(keyCount => {
           spinner.succeed(`Done.  ${keyCount} files found.`);
+        })
+        .catch(error => {
+          spinner.fail('Fail:');
+          console.error(error);
+        });
+    }
+  )
+  // Scan command
+  .command(
+    'scan [bucket]',
+    'Scan all files from bucket.',
+    yargs => {
+      yargs.positional('bucket', {
+        describe: 'S3 bucket',
+        require: true
+      });
+    },
+    argv => {
+      // Run collector
+      const spinner = ora('Scanning...').start();
+      scanner({
+        bucket: argv.bucket,
+        output: argv.output,
+        spinner: spinner
+      })
+        .then(scanned => {
+          spinner.succeed('Done.');
+
+          console.error(`
+Keys: ${scanned.keyCount}
+Checked: ${scanned.checkedCount}
+Errors: ${scanned.errorCount}
+Infected: ${scanned.infectedCount}
+
+Infected:
+${scanned.infected.map(i => `${i.k}: ${i.infected}`).join('\n')}
+
+Errors:
+${scanned.errors.map(i => `${i.k}: ${i.error.message || i.error}`).join('\n')}
+          `);
         })
         .catch(error => {
           spinner.fail('Fail:');
