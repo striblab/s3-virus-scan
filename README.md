@@ -31,3 +31,10 @@ If you want to scan a file when it is added to S3, there are different and bette
   * Use the `--output` option to output the files to a specific location, otherwise the current directory will be used.
 * San files in a bucket: `s3-virus-scan scan bucket-name`
   * Use the `--output` option to output the files to a specific location, as well where the expected `collect` output is, otherwise the current directory will be used.
+
+## TODO
+
+* Add ability to reset, currently need to delete the output files to reset.
+* Better resume support.
+* Better code.
+* Maybe it doesn't need to get the full list first.
