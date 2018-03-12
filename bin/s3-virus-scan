@@ -42,6 +42,11 @@ yarger
         describe: 'S3 bucket',
         require: true
       });
+      yargs.option('key', {
+        alias: 'k',
+        describe:
+          'Scan single key/file (does not affect scanning tally for bucket)'
+      }).argv;
     },
     argv => {
       // Run collector
@@ -49,12 +54,14 @@ yarger
       scanner({
         bucket: argv.bucket,
         output: argv.output,
-        spinner: spinner
+        spinner: spinner,
+        key: argv.key ? argv.key : undefined
       })
         .then(scanned => {
           spinner.succeed('Done.');
 
-          console.error(`
+          if (scanned && scanned.keyCount) {
+            console.error(`
 Keys: ${scanned.keyCount}
 Checked: ${scanned.checkedCount}
 Errors: ${scanned.errorCount}
@@ -65,7 +72,8 @@ ${scanned.infected.map(i => `${i.k}: ${i.infected}`).join('\n')}
 
 Errors:
 ${scanned.errors.map(i => `${i.k}: ${i.error.message || i.error}`).join('\n')}
-          `);
+            `);
+          }
         })
         .catch(error => {
           spinner.fail('Fail:');

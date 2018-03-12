@@ -15,6 +15,7 @@ If you want to scan a file when it is added to S3, there are different and bette
        * Uncomment: `TCPSocket 3310`
        * Uncomment: `TCPAddr 127.0.0.1`
        * Uncomment: `StreamMaxLength 100M`
+         * Edit depending on the max file size you need to scan.
      * `cp /usr/local/etc/clamav/freshclam.conf.sample /usr/local/etc/clamav/freshclam.conf`
        * Edit file, comment the `Example` line near the top.
    * On Linux, you should be able to do something like: `apt-get install clamav`
@@ -26,11 +27,15 @@ If you want to scan a file when it is added to S3, there are different and bette
 
 ## Usage
 
-* Make sure ClamAV is running: `clamd`
+* Make sure ClamAV is running and up to date: `freshclam -v && clamd`
+  * Unsure how to stop the daemon, except using Activity Monitor to kill it.
 * Get the list of files from a bucket: `s3-virus-scan collect bucket-name`
   * Use the `--output` option to output the files to a specific location, otherwise the current directory will be used.
-* San files in a bucket: `s3-virus-scan scan bucket-name`
+  * This will create a couple files to keep track of what it finds and where it is in collecting.
+* Scan files in a bucket: `s3-virus-scan scan bucket-name`
   * Use the `--output` option to output the files to a specific location, as well where the expected `collect` output is, otherwise the current directory will be used.
+  * This will create a couple files to keep track of what it finds and where it is in collecting. This can be used to rescan any errors.
+* Scan a single file/key: `s3-virus-scan scan bucket-name --key=key-path`
 
 ## TODO
 
